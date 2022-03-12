@@ -1,0 +1,75 @@
+version: ""
+
+formatter: markdown table
+
+name: terraform-aws-ecs-service
+
+content: |-
+  # ecs-service
+
+  ecs-service is used to create an ecs service and the corresponding codedeploy, log groups, codepipeline artifacts,
+  etc. It is intended to be used with StratusGrid's multi-account ecs pipeline module to allow for container images to be
+  passed immutably from cluster to cluster in different environments and accounts in a single contiguous pipeline.
+
+  For this purpose, ecs-service outputs a map which can be used to provide configuration for an environment stage
+  when provisioning the pipeline.
+
+  ## Examples
+  Example Outputs which can feed CodePipeline Module:
+  ```terraform
+  codepipeline_variables = {
+    "artifact_appspec_file_name" = "appspec.yaml"
+    "artifact_bucket" = "my-bucket-name"
+    "artifact_key" = "deployment/ecs/my-service-artifacts.zip"
+    "artifact_kms_key_arn" = "arn:aws:kms:us-east-1:335895905019:key/5fc4e28f-44f1-6f00-b3e8-142fbd61390c"
+    "artifact_taskdef_file_name" = "taskdef.json"
+    "aws_account_number" = "123456789012"
+    "codedeploy_deployment_app_arn" = "arn:aws:codedeploy:us-east-1:123456789012:application:my-service-name"
+    "codedeploy_deployment_app_name" = "my-service-name"
+    "codedeploy_deployment_group_arn" = "arn:aws:codedeploy:us-east-1:123456789012:deploymentgroup:my-service-name/my-service-name"
+    "codedeploy_deployment_group_name" = "my-service-name"
+    "trusting_account_role" = "arn:aws:iam::123456789012:role/my-service-name-cicd"
+  }
+  ```
+
+  ---
+
+  {{ .Resources }}
+
+  {{ .Inputs }}
+
+  {{ .Outputs }}
+
+  ---
+
+  ## Contributors
+  - Chris Hurst [StratusChris](https://github.com/StratusChris)
+  - Chris Childress [chrischildresssg](https://github.com/chrischildresssg)
+
+  ## Ideas for future enhancements
+  - Potentially make the kms key optional to better support same account options with less inputs?
+  - Have the iam-cicd-account iam resources be optional and default to not creating via count
+  - Move autoscaling into the module. To add autoscaling to module, I would:
+    - Move the appautoscaling target and policy into the module
+    - Have two policies which it selects based off of a string or didn't do if set to false (or left blank?) on autoscaling
+  - Put the initialization container definition into the module by making it an optional variable which has a local with the config so it matches ports and then coalesces the value
+  - Add in other codedeploy strategies?
+
+
+  Note, manual changes to the README will be overwritten when the documentation is updated. To update the documentation, run `terraform-docs -c .config/.terraform-docs.yml .`
+
+sections:
+  show:
+    - resources
+    - inputs
+    - outputs
+    - providers
+    - requirements
+
+sort:
+  enabled: true
+  by: name
+
+output:
+  file: README.md
+  mode: replace
