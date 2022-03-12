@@ -210,7 +210,7 @@ resource "aws_appautoscaling_policy" "ecs_service" {
 
 module "ecs_fargate_service" {
     source  = "registry.terraform.io/StratusGrid/ecs-service/aws"
-    version = "~> 1.0"
+    version = "~> 1.0.1"
 
   input_tags       = merge(local.common_tags, {})
   ecs_cluster_name = aws_ecs_cluster.this.name
