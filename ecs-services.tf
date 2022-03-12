@@ -8,7 +8,7 @@ resource "aws_ecs_task_definition" "this" {
   cpu                      = var.taskdef_cpu
   memory                   = var.taskdef_memory
 
-  tags = merge(var.input_tags, {})
+  tags = merge(local.common_tags, {})
 
   container_definitions = var.initialization_container_definitions
 }
@@ -67,7 +67,7 @@ resource "aws_ecs_service" "this" {
     type = "CODE_DEPLOY"
   }
 
-  tags = merge(var.input_tags, {})
+  tags = merge(local.common_tags, {})
 
   #ignoring changes since codedeploy manages this after the initial deployment
   lifecycle {

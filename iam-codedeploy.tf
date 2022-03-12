@@ -18,7 +18,7 @@ resource "aws_iam_role" "this_codedeploy" {
 EOF
 
   tags = merge(
-    var.input_tags,
+    local.common_tags,
     {
     },
   )

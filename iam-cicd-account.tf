@@ -14,7 +14,7 @@ resource "aws_iam_role" "cicd_account_role" {
     ]
   })
 
-  tags = merge(var.input_tags, {})
+  tags = merge(local.common_tags, {})
 }
 
 data "aws_iam_policy_document" "cicd_account_codedeploy_access" {
