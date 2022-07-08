@@ -45,22 +45,38 @@ EOF
     content {
       filename = local.artifact_appspec_file_name
       content  = <<-EOF
-      version: 0.0
-      Resources:
-        - TargetService:
-            Type: AWS::ECS::Service
-            Properties:
-              TaskDefinition: <TASK_DEFINITION>
-              LoadBalancerInfo:
-                ContainerName: "${var.lb_container_name}"
-                ContainerPort: "${var.lb_container_port}"
-              PlatformVersion: "${var.platform_version}"
-              CapacityProviderStrategy:
-                - Base: "${lookup(var.custom_capacity_provider_strategy, "primary_capacity_provider_base")}"
-                  CapacityProvider: "${lookup(var.custom_capacity_provider_strategy, "primary_capacity_provider")}"
-                  Weight: "${lookup(var.custom_capacity_provider_strategy, "primary_capacity_provider_weight")}"
-                - CapacityProvider: "${lookup(var.custom_capacity_provider_strategy, "secondary_capacity_provider")}"
-                  Weight: "${lookup(var.custom_capacity_provider_strategy, "secondary_capacity_provider_weight")}"
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: <TASK_DEFINITION>
+        LoadBalancerInfo:
+          ContainerName: "${var.lb_container_name}"
+          ContainerPort: "${var.lb_container_port}"
+        PlatformVersion: "${var.platform_version}"
+        CapacityProviderStrategy:
+          - Base: "${lookup(var.custom_capacity_provider_strategy, "primary_capacity_provider_base")}"
+            CapacityProvider: "${lookup(var.custom_capacity_provider_strategy, "primary_capacity_provider")}"
+            Weight: "${lookup(var.custom_capacity_provider_strategy, "primary_capacity_provider_weight")}"
+          - CapacityProvider: "${lookup(var.custom_capacity_provider_strategy, "secondary_capacity_provider")}"
+            Weight: "${lookup(var.custom_capacity_provider_strategy, "secondary_capacity_provider_weight")}"
+Hooks:
+%{ if var.appspec_hook_before_install != "" ~}
+  - BeforeInstall: "${var.appspec_hook_before_install}"
+%{ endif ~}
+%{ if var.appspec_hook_after_install != ""  ~}
+  - AfterInstall: "${var.appspec_hook_after_install}"
+%{ endif ~}
+%{ if var.appspec_hook_after_allow_test_traffic != ""  ~}
+  - AfterInstall: "${var.appspec_hook_after_allow_test_traffic}"
+%{ endif ~}
+%{ if var.appspec_hook_before_allow_traffic != ""  ~}
+  - AfterInstall: "${var.appspec_hook_before_allow_traffic}"
+%{ endif ~}
+%{ if var.appspec_hook_after_allow_traffic != ""  ~}
+  - AfterInstall: "${var.appspec_hook_after_allow_traffic}"
+%{ endif ~}
       EOF
     }
   }
@@ -70,18 +86,33 @@ EOF
     content {
       filename = local.artifact_appspec_file_name
       content  = <<-EOF
-      version: 0.0
-      Resources:
-        - TargetService:
-            Type: AWS::ECS::Service
-            Properties:
-              TaskDefinition: <TASK_DEFINITION>
-              LoadBalancerInfo:
-                ContainerName: "${var.lb_container_name}"
-                ContainerPort: "${var.lb_container_port}"
-              PlatformVersion: "${var.platform_version}"
-      EOF
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: <TASK_DEFINITION>
+        LoadBalancerInfo:
+          ContainerName: "${var.lb_container_name}"
+          ContainerPort: "${var.lb_container_port}"
+        PlatformVersion: "${var.platform_version}"
+Hooks:
+%{ if var.appspec_hook_before_install != "" ~}
+  - BeforeInstall: "${var.appspec_hook_before_install}"
+%{ endif ~}
+%{ if var.appspec_hook_after_install != ""  ~}
+  - AfterInstall: "${var.appspec_hook_after_install}"
+%{ endif ~}
+%{ if var.appspec_hook_after_allow_test_traffic != ""  ~}
+  - AfterInstall: "${var.appspec_hook_after_allow_test_traffic}"
+%{ endif ~}
+%{ if var.appspec_hook_before_allow_traffic != ""  ~}
+  - AfterInstall: "${var.appspec_hook_before_allow_traffic}"
+%{ endif ~}
+%{ if var.appspec_hook_after_allow_traffic != ""  ~}
+  - AfterInstall: "${var.appspec_hook_after_allow_traffic}"
+%{ endif ~}
+EOF
     }
   }
-
 }

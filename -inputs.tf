@@ -7,6 +7,36 @@ variable "input_tags" {
   }
 }
 
+variable "appspec_hook_before_install" {
+  description = "Name of the Lambda function to invoke during the BeforeInstall application deployment hook"
+  type = string
+  default = ""
+}
+
+variable "appspec_hook_after_install" {
+  description = "Name of the Lambda function to invoke during the AfterInstall application deployment hook"
+  type = string
+  default = ""
+}
+
+variable "appspec_hook_after_allow_test_traffic" {
+  description = "Name of the Lambda function to invoke during the AfterAllowTestTraffic application deployment hook"
+  type = string
+  default = ""
+}
+
+variable "appspec_hook_before_allow_traffic" {
+  description = "Name of the Lambda function to invoke during the BeforeAllowTraffic deployment hook"
+  type = string
+  default = ""
+}
+
+variable "appspec_hook_after_allow_traffic" {
+  description = "Name of the Lambda function to invoke during the AfterAllowTraffic deployment hook"
+  type = string
+  default = ""
+}
+
 variable "trusted_account_numbers" {
   description = "List of 12-digit AWS account numbers which can assume the IAM Role which has rights to trigger the CodeDeploy Deployment. This can be used to allow the CodeDeploy to be triggered from another account(s). String type for use in IAM policy."
   type        = list(string)
