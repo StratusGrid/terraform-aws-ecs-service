@@ -62,21 +62,21 @@ Resources:
           - CapacityProvider: "${lookup(var.custom_capacity_provider_strategy, "secondary_capacity_provider")}"
             Weight: "${lookup(var.custom_capacity_provider_strategy, "secondary_capacity_provider_weight")}"
 Hooks:
-%{ if var.appspec_hook_before_install != "" ~}
+%{if var.appspec_hook_before_install != ""~}
   - BeforeInstall: "${var.appspec_hook_before_install}"
-%{ endif ~}
-%{ if var.appspec_hook_after_install != ""  ~}
+%{endif~}
+%{if var.appspec_hook_after_install != ""~}
   - AfterInstall: "${var.appspec_hook_after_install}"
-%{ endif ~}
-%{ if var.appspec_hook_after_allow_test_traffic != ""  ~}
+%{endif~}
+%{if var.appspec_hook_after_allow_test_traffic != ""~}
   - AfterInstall: "${var.appspec_hook_after_allow_test_traffic}"
-%{ endif ~}
-%{ if var.appspec_hook_before_allow_traffic != ""  ~}
+%{endif~}
+%{if var.appspec_hook_before_allow_traffic != ""~}
   - AfterInstall: "${var.appspec_hook_before_allow_traffic}"
-%{ endif ~}
-%{ if var.appspec_hook_after_allow_traffic != ""  ~}
+%{endif~}
+%{if var.appspec_hook_after_allow_traffic != ""~}
   - AfterInstall: "${var.appspec_hook_after_allow_traffic}"
-%{ endif ~}
+%{endif~}
       EOF
     }
   }
@@ -97,21 +97,21 @@ Resources:
           ContainerPort: "${var.lb_container_port}"
         PlatformVersion: "${var.platform_version}"
 Hooks:
-%{ if var.appspec_hook_before_install != "" ~}
+%{if var.appspec_hook_before_install != ""~}
   - BeforeInstall: "${var.appspec_hook_before_install}"
-%{ endif ~}
-%{ if var.appspec_hook_after_install != ""  ~}
+%{endif~}
+%{if var.appspec_hook_after_install != ""~}
   - AfterInstall: "${var.appspec_hook_after_install}"
-%{ endif ~}
-%{ if var.appspec_hook_after_allow_test_traffic != ""  ~}
+%{endif~}
+%{if var.appspec_hook_after_allow_test_traffic != ""~}
   - AfterInstall: "${var.appspec_hook_after_allow_test_traffic}"
-%{ endif ~}
-%{ if var.appspec_hook_before_allow_traffic != ""  ~}
+%{endif~}
+%{if var.appspec_hook_before_allow_traffic != ""~}
   - AfterInstall: "${var.appspec_hook_before_allow_traffic}"
-%{ endif ~}
-%{ if var.appspec_hook_after_allow_traffic != ""  ~}
+%{endif~}
+%{if var.appspec_hook_after_allow_traffic != ""~}
   - AfterInstall: "${var.appspec_hook_after_allow_traffic}"
-%{ endif ~}
+%{endif~}
 EOF
     }
   }
