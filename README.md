@@ -10,11 +10,28 @@ when provisioning the pipeline.
 
 ## Examples
 Example use of the module:
-```terraform
+```hcl
 locals {
   ecs_cluster_name = "${var.name_prefix}-ecs-cluster${local.name_suffix}"
   ecs_service_name      = "${var.name_prefix}-ecs-service${local.name_suffix}"
   ecs_service_log_group = "/ecs/${local.ecs_cluster_name}/${local.ecs_service_name}"
+}
+
+resource "aws_lambda_function" "test_lambda" {
+  filename      = "lambda_function_payload.zip"
+  function_name = "lambda_function_name"
+  role          = aws_iam_role.iam_for_lambda.arn
+  handler       = "index.test"
+
+  source_code_hash = filebase64sha256("lambda_function_payload.zip")
+
+  runtime = "nodejs12.x"
+
+  environment {
+    variables = {
+      foo = "bar"
+    }
+  }
 }
 
 module "service_alb_sg" {
@@ -244,6 +261,8 @@ module "ecs_fargate_service" {
   codepipeline_source_bucket_kms_key_arn = var.codepipeline_source_bucket_kms_key_arn
   codepipeline_source_object_key         = "deployment/ecs/service-artifacts.zip"
 
+  # Include Lambdas by name to invoke as deployment hooks in the appspec as required
+  appspec_hook_after_install = aws_lambda_function.test_lambda.function_name
 
   taskdef_execution_role_arn = module.ecs_service_iam_role.iam_role_arn
   taskdef_task_role_arn      = module.ecs_service_iam_role.iam_role_arn
@@ -301,17 +320,17 @@ EOF
 Example Outputs which can feed CodePipeline Module:
 ```terraform
 codepipeline_variables = {
-  "artifact_appspec_file_name" = "appspec.yaml"
-  "artifact_bucket" = "my-bucket-name"
-  "artifact_key" = "deployment/ecs/my-service-artifacts.zip"
-  "artifact_kms_key_arn" = "arn:aws:kms:us-east-1:335895905019:key/5fc4e28f-44f1-6f00-b3e8-142fbd61390c"
-  "artifact_taskdef_file_name" = "taskdef.json"
-  "aws_account_number" = "123456789012"
-  "codedeploy_deployment_app_arn" = "arn:aws:codedeploy:us-east-1:123456789012:application:my-service-name"
-  "codedeploy_deployment_app_name" = "my-service-name"
-  "codedeploy_deployment_group_arn" = "arn:aws:codedeploy:us-east-1:123456789012:deploymentgroup:my-service-name/my-service-name"
-  "codedeploy_deployment_group_name" = "my-service-name"
-  "trusting_account_role" = "arn:aws:iam::123456789012:role/my-service-name-cicd"
+"artifact_appspec_file_name" = "appspec.yaml"
+"artifact_bucket" = "my-bucket-name"
+"artifact_key" = "deployment/ecs/my-service-artifacts.zip"
+"artifact_kms_key_arn" = "arn:aws:kms:us-east-1:335895905019:key/5fc4e28f-44f1-6f00-b3e8-142fbd61390c"
+"artifact_taskdef_file_name" = "taskdef.json"
+"aws_account_number" = "123456789012"
+"codedeploy_deployment_app_arn" = "arn:aws:codedeploy:us-east-1:123456789012:application:my-service-name"
+"codedeploy_deployment_app_name" = "my-service-name"
+"codedeploy_deployment_group_arn" = "arn:aws:codedeploy:us-east-1:123456789012:deploymentgroup:my-service-name/my-service-name"
+"codedeploy_deployment_group_name" = "my-service-name"
+"trusting_account_role" = "arn:aws:iam::123456789012:role/my-service-name-cicd"
 }
 ```
 
@@ -337,6 +356,11 @@ codepipeline_variables = {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_appspec_hook_after_allow_test_traffic"></a> [appspec\_hook\_after\_allow\_test\_traffic](#input\_appspec\_hook\_after\_allow\_test\_traffic) | Name of the Lambda function to invoke during the AfterAllowTestTraffic application deployment hook | `string` | `""` | no |
+| <a name="input_appspec_hook_after_allow_traffic"></a> [appspec\_hook\_after\_allow\_traffic](#input\_appspec\_hook\_after\_allow\_traffic) | Name of the Lambda function to invoke during the AfterAllowTraffic deployment hook | `string` | `""` | no |
+| <a name="input_appspec_hook_after_install"></a> [appspec\_hook\_after\_install](#input\_appspec\_hook\_after\_install) | Name of the Lambda function to invoke during the AfterInstall application deployment hook | `string` | `""` | no |
+| <a name="input_appspec_hook_before_allow_traffic"></a> [appspec\_hook\_before\_allow\_traffic](#input\_appspec\_hook\_before\_allow\_traffic) | Name of the Lambda function to invoke during the BeforeAllowTraffic deployment hook | `string` | `""` | no |
+| <a name="input_appspec_hook_before_install"></a> [appspec\_hook\_before\_install](#input\_appspec\_hook\_before\_install) | Name of the Lambda function to invoke during the BeforeInstall application deployment hook | `string` | `""` | no |
 | <a name="input_assign_public_ip"></a> [assign\_public\_ip](#input\_assign\_public\_ip) | Boolean to indicate whether to assign public IPs to task network interfaces | `bool` | `false` | no |
 | <a name="input_codedeploy_auto_rollback_enabled"></a> [codedeploy\_auto\_rollback\_enabled](#input\_codedeploy\_auto\_rollback\_enabled) | Boolean to determine whether CodeDeploy should automatically roll back when a rollback event is triggered | `bool` | `true` | no |
 | <a name="input_codedeploy_auto_rollback_events"></a> [codedeploy\_auto\_rollback\_events](#input\_codedeploy\_auto\_rollback\_events) | CodeDeploy rollback events which will trigger an automatic rollback | `list(string)` | <pre>[<br>  "DEPLOYMENT_FAILURE",<br>  "DEPLOYMENT_STOP_ON_ALARM",<br>  "DEPLOYMENT_STOP_ON_REQUEST"<br>]</pre> | no |
@@ -394,8 +418,8 @@ codepipeline_variables = {
 - Potentially make the kms key optional to better support same account options with less inputs?
 - Have the iam-cicd-account iam resources be optional and default to not creating via count
 - Move autoscaling into the module. To add autoscaling to module, I would:
-  - Move the appautoscaling target and policy into the module
-  - Have two policies which it selects based off of a string or didn't do if set to false (or left blank?) on autoscaling
+- Move the appautoscaling target and policy into the module
+- Have two policies which it selects based off of a string or didn't do if set to false (or left blank?) on autoscaling
 - Put the initialization container definition into the module by making it an optional variable which has a local with the config so it matches ports and then coalesces the value
 - Add in other codedeploy strategies?
 
