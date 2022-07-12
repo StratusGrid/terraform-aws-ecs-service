@@ -227,7 +227,7 @@ resource "aws_appautoscaling_policy" "ecs_service" {
 
 module "ecs_fargate_service" {
     source  = "registry.terraform.io/StratusGrid/ecs-service/aws"
-    version = "~> 1.0"
+    version = "~> 1.1"
 
   input_tags       = merge(local.common_tags, {})
   ecs_cluster_name = aws_ecs_cluster.this.name
@@ -318,19 +318,19 @@ EOF
 ```
 
 Example Outputs which can feed CodePipeline Module:
-```terraform
+```hcl
 codepipeline_variables = {
-"artifact_appspec_file_name" = "appspec.yaml"
-"artifact_bucket" = "my-bucket-name"
-"artifact_key" = "deployment/ecs/my-service-artifacts.zip"
-"artifact_kms_key_arn" = "arn:aws:kms:us-east-1:335895905019:key/5fc4e28f-44f1-6f00-b3e8-142fbd61390c"
-"artifact_taskdef_file_name" = "taskdef.json"
-"aws_account_number" = "123456789012"
-"codedeploy_deployment_app_arn" = "arn:aws:codedeploy:us-east-1:123456789012:application:my-service-name"
-"codedeploy_deployment_app_name" = "my-service-name"
-"codedeploy_deployment_group_arn" = "arn:aws:codedeploy:us-east-1:123456789012:deploymentgroup:my-service-name/my-service-name"
-"codedeploy_deployment_group_name" = "my-service-name"
-"trusting_account_role" = "arn:aws:iam::123456789012:role/my-service-name-cicd"
+  "artifact_appspec_file_name" = "appspec.yaml"
+  "artifact_bucket" = "my-bucket-name"
+  "artifact_key" = "deployment/ecs/my-service-artifacts.zip"
+  "artifact_kms_key_arn" = "arn:aws:kms:us-east-1:335895905019:key/5fc4e28f-44f1-6f00-b3e8-142fbd61390c"
+  "artifact_taskdef_file_name" = "taskdef.json"
+  "aws_account_number" = "123456789012"
+  "codedeploy_deployment_app_arn" = "arn:aws:codedeploy:us-east-1:123456789012:application:my-service-name"
+  "codedeploy_deployment_app_name" = "my-service-name"
+  "codedeploy_deployment_group_arn" = "arn:aws:codedeploy:us-east-1:123456789012:deploymentgroup:my-service-name/my-service-name"
+  "codedeploy_deployment_group_name" = "my-service-name"
+  "trusting_account_role" = "arn:aws:iam::123456789012:role/my-service-name-cicd"
 }
 ```
 
