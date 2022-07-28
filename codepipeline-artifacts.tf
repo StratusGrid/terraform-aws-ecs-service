@@ -1,6 +1,6 @@
 ### This uploads the task definition and appspec as a zip
 
-resource "aws_s3_bucket_object" "artifacts_s3" {
+resource "aws_s3_object" "artifacts_s3" {
 
   bucket      = var.codepipeline_source_bucket_id
   key         = var.codepipeline_source_object_key
