@@ -1,6 +1,6 @@
 locals {
-  ecs_cluster_name = "${var.name_prefix}-ecs-cluster${local.name_suffix}"
-  ecs_service_name      = "${var.name_prefix}-ecs-service${local.name_suffix}"
+  ecs_cluster_name      = "my-ecs-cluster-dev"
+  ecs_service_name      = "my-ecs-service-dev"
   ecs_service_log_group = "/ecs/${local.ecs_cluster_name}/${local.ecs_service_name}"
 }
 
@@ -25,7 +25,7 @@ module "service_alb_sg" {
   source  = "registry.terraform.io/terraform-aws-modules/security-group/aws"
   version = "~>4.0"
 
-  name            = "${var.name_prefix}-ecs-alb-sg${local.name_suffix}"
+  name            = "my-ecs-alb-sg-dev"
   use_name_prefix = false
   description     = "Security group to allow inbound traffic to the service load balancer."
   vpc_id          = data.aws_vpc.this.id
@@ -48,7 +48,7 @@ module "service_alb" {
   source  = "registry.terraform.io/terraform-aws-modules/alb/aws"
   version = "~> 6.0"
 
-  name = "${var.name_prefix}-alb${local.name_suffix}"
+  name = "my-alb-dev"
 
   enable_deletion_protection = true
 
@@ -59,14 +59,14 @@ module "service_alb" {
   security_groups    = [module.service_alb_sg.security_group_id]
 
   # Configure logging bucket if it is enabled
-  access_logs = var.alb_logging_enabled ? {
-    bucket = var.logging_bucket
-    #prefix = "alb"
-  } : {}
+  access_logs = {
+    bucket = "my-general-logging-bucket"
+    prefix = "alb"
+  }
 
   target_groups = [
     {
-      name             = "${var.name_prefix}-tg-blue${local.name_suffix}"
+      name             = "my-tg-blue-dev"
       backend_protocol = "HTTP"
       protocol_version = "HTTP1"
       backend_port     = 80
@@ -84,7 +84,7 @@ module "service_alb" {
       }
     },
     {
-      name             = "${var.name_prefix}-tg-green${local.name_suffix}"
+      name             = "my-tg-green-dev"
       backend_protocol = "HTTP"
       protocol_version = "HTTP1"
       backend_port     = 80
@@ -168,7 +168,7 @@ module "ecs_service_sg" {
   source  = "registry.terraform.io/terraform-aws-modules/security-group/aws"
   version = "~> 4.3"
 
-  name        = "${var.name_prefix}-ecs-service-sg${local.name_suffix}"
+  name        = "my-ecs-service-sg-dev"
   description = "SG for the ECS Service"
   vpc_id      = data.aws_vpc.this.id
 
@@ -188,13 +188,13 @@ resource "aws_appautoscaling_target" "ecs_service" {
   resource_id        = "service/${local.ecs_cluster_name}/${local.ecs_service_name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
-  max_capacity       = var.ecs_service_max_capacity
-  min_capacity       = var.ecs_service_min_capacity
+  min_capacity       = 1
+  max_capacity       = 10
   depends_on         = [module.ecs_fargate_service]
 }
 
 resource "aws_appautoscaling_policy" "ecs_service" {
-  name               = "${var.name_prefix}-service-autoscaling-policy${local.name_suffix}"
+  name               = "my-service-autoscaling-policy-dev"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.ecs_service.resource_id
   scalable_dimension = aws_appautoscaling_target.ecs_service.scalable_dimension
@@ -202,9 +202,9 @@ resource "aws_appautoscaling_policy" "ecs_service" {
 
   target_tracking_scaling_policy_configuration {
     disable_scale_in   = false
-    scale_in_cooldown  = var.ecs_scale_in_cooldown
-    scale_out_cooldown = var.ecs_scale_out_cooldown
-    target_value       = var.ecs_autoscaling_metric_target_value
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 300
+    target_value       = 60
 
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
@@ -212,9 +212,17 @@ resource "aws_appautoscaling_policy" "ecs_service" {
   }
 }
 
+locals {
+  taskdef_cpu                  = 512
+  taskdef_memory               = 1024
+  container_cpu                = 512
+  container_memory_reservation = 512
+  container_memory             = 1024
+}
+
 module "ecs_fargate_service" {
-    source  = "registry.terraform.io/StratusGrid/ecs-service/aws"
-    version = "~> 1.1"
+  source  = "registry.terraform.io/StratusGrid/ecs-service/aws"
+  version = #insert version here
 
   input_tags       = merge(local.common_tags, {})
   ecs_cluster_name = aws_ecs_cluster.this.name
@@ -223,13 +231,14 @@ module "ecs_fargate_service" {
   platform_version = "1.4.0"
   log_group_path   = local.ecs_service_log_group
 
-  codedeploy_termination_wait_time = var.termination_wait_time
+  codedeploy_termination_wait_time         = 5
+  codedeploy_deployment_configuration_name = "CodeDeployDefault.ECSLinear10PercentEvery1Minutes"
 
-  desired_count  = var.ecs_service_task_desired_count
-  taskdef_cpu    = var.ecs_service_taskdef_cpu
-  taskdef_memory = var.ecs_service_taskdef_memory
+  desired_count  = 1
+  taskdef_cpu    = local.taskdef_cpu
+  taskdef_memory = local.taskdef_memory
 
-  trusted_account_numbers = var.ecs_deploy_trusted_accounts
+  trusted_account_numbers = ["987654321098"]
 
   subnets         = data.aws_subnet_ids.private_subnets.ids
   security_groups = [module.ecs_service_sg.security_group_id]
@@ -242,10 +251,10 @@ module "ecs_fargate_service" {
   lb_target_group_blue_name         = module.service_alb.target_group_names[0]
   lb_target_group_green_name        = module.service_alb.target_group_names[1]
   lb_container_name                 = "service" # has to match name in container definition within task_definition
-  lb_container_port                 = 80         # has to match name in container definition within task_definition
+  lb_container_port                 = 80        # has to match name in container definition within task_definition
 
-  codepipeline_source_bucket_id          = var.codepipeline_source_bucket_id
-  codepipeline_source_bucket_kms_key_arn = var.codepipeline_source_bucket_kms_key_arn
+  codepipeline_source_bucket_id          = "my-source-bucket-name"
+  codepipeline_source_bucket_kms_key_arn = "arn:aws:kms:us-east-1:123456789012:key/79bcff61-8df7-482f-81a8-fd133015758d"
   codepipeline_source_object_key         = "deployment/ecs/service-artifacts.zip"
 
   # Include Lambdas by name to invoke as deployment hooks in the appspec as required
@@ -276,9 +285,9 @@ EOF
   {
     "name": "service",
     "image": "<IMAGE1_NAME>",
-    "cpu": ${var.ecs_service_container_cpu},
-    "memory": ${var.ecs_service_container_memory},
-    "memoryReservation": ${var.ecs_service_container_memory_reservation},
+    "cpu": ${local.container_cpu},
+    "memory": ${local.container_memory},
+    "memoryReservation": ${local.container_memory_reservation},
     "essential": true,
 		"logConfiguration": {
       "logDriver": "awslogs",
