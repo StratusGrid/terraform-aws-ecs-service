@@ -50,6 +50,12 @@ variable "codedeploy_auto_rollback_events" {
   ]
 }
 
+variable "codedeploy_deployment_configuration_name" {
+  description = "CodeDeploy predefined deployment configuration name. See https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html for valid predefined configurations."
+  type        = string
+  default     = "CodeDeployDefault.ECSAllAtOnce"
+}
+
 variable "codedeploy_role_additional_policies" {
   description = "Map of additional policies to attach to the CodeDeploy role. Should be formatted as {key = arn}"
   type        = map(string)

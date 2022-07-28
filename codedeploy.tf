@@ -7,7 +7,7 @@ resource "aws_codedeploy_app" "this" {
 resource "aws_codedeploy_deployment_group" "this" {
 
   app_name               = aws_codedeploy_app.this.name
-  deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+  deployment_config_name = var.codedeploy_deployment_configuration_name
   deployment_group_name  = var.service_name
   service_role_arn       = aws_iam_role.this_codedeploy.arn
 
