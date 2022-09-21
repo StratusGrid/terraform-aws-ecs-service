@@ -1,6 +1,8 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-aws-ecs-service
 
+GitHub: [ StratusGrid/terraform-aws-ecs-service](https://github.com/StratusGrid/terraform-aws-ecs-service)
+
 ecs-service is used to create an ecs service and the corresponding codedeploy, log groups, codepipeline artifacts,
 etc. It is intended to be used with StratusGrid's multi-account ecs pipeline module to allow for container images to be
 passed immutably from cluster to cluster in different environments and accounts in a single contiguous pipeline.
