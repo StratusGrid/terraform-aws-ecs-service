@@ -1,5 +1,5 @@
 <!-- BEGIN_TF_DOCS -->
-# ecs-service
+# terraform-aws-ecs-service
 
 ecs-service is used to create an ecs service and the corresponding codedeploy, log groups, codepipeline artifacts,
 etc. It is intended to be used with StratusGrid's multi-account ecs pipeline module to allow for container images to be
@@ -43,9 +43,7 @@ module "service_alb_sg" {
   description     = "Security group to allow inbound traffic to the service load balancer."
   vpc_id          = data.aws_vpc.this.id
 
-  ingress_cidr_blocks = [
-    "192.168.0.0/16"
-  ]
+  ingress_cidr_blocks = ["192.168.0.0/16"]
   egress_rules = ["all-all"]
   ingress_with_cidr_blocks = [
     {
@@ -64,7 +62,6 @@ module "service_alb" {
   name = "my-alb-dev"
 
   enable_deletion_protection = true
-
   load_balancer_type = "application"
   internal           = true
   vpc_id             = data.aws_vpc.this.id
@@ -166,16 +163,13 @@ resource "aws_ecs_cluster" "this" {
 
 resource "aws_ecs_cluster_capacity_providers" "this" {
   cluster_name = aws_ecs_cluster.this.name
-
   capacity_providers = ["FARGATE", "FARGATE_SPOT"]
-
   default_capacity_provider_strategy {
     base              = 1
     weight            = 100
     capacity_provider = "FARGATE"
   }
 }
-
 
 module "ecs_service_sg" {
   source  = "registry.terraform.io/terraform-aws-modules/security-group/aws"
@@ -186,7 +180,6 @@ module "ecs_service_sg" {
   vpc_id      = data.aws_vpc.this.id
 
   egress_rules = ["all-all"]
-
   ingress_with_source_security_group_id = [
     {
       rule                     = "all-all"
@@ -195,7 +188,6 @@ module "ecs_service_sg" {
     }
   ]
 }
-
 
 resource "aws_appautoscaling_target" "ecs_service" {
   resource_id        = "service/${local.ecs_cluster_name}/${local.ecs_service_name}"
@@ -279,50 +271,51 @@ module "ecs_fargate_service" {
   # This is just an initial definition, not codedeploy
   ### This is only needed because you can't put <> in the image field
   initialization_container_definitions = <<EOF
-[
-  {
-    "name": "service",
-    "image": "IMAGE1_NAME",
-    "portMappings": [
+    [
       {
-        "hostPort": 80,
-        "protocol": "tcp",
-        "containerPort": 80
+        "name": "service",
+        "image": "IMAGE1_NAME",
+        "portMappings": [
+          {
+            "hostPort": 80,
+            "protocol": "tcp",
+            "containerPort": 80
+          }
+        ]
       }
     ]
-  }
-]
-EOF
+    EOF
+
   codepipeline_container_definitions   = <<EOF
-[
-  {
-    "name": "service",
-    "image": "<IMAGE1_NAME>",
-    "cpu": ${local.container_cpu},
-    "memory": ${local.container_memory},
-    "memoryReservation": ${local.container_memory_reservation},
-    "essential": true,
-		"logConfiguration": {
-      "logDriver": "awslogs",
-      "secretOptions": null,
-      "options": {
-        "awslogs-group": "${local.ecs_service_log_group}",
-        "awslogs-region": "${data.aws_region.current.name}",
-        "awslogs-stream-prefix": "ecs"
-      }
-    },
-    "secrets": [
-    ],
-    "portMappings": [
+    [
       {
-        "hostPort": 80,
-        "protocol": "tcp",
-        "containerPort": 80
+        "name": "service",
+        "image": "<IMAGE1_NAME>",
+        "cpu": ${local.container_cpu},
+        "memory": ${local.container_memory},
+        "memoryReservation": ${local.container_memory_reservation},
+        "essential": true,
+    		"logConfiguration": {
+          "logDriver": "awslogs",
+          "secretOptions": null,
+          "options": {
+            "awslogs-group": "${local.ecs_service_log_group}",
+            "awslogs-region": "${data.aws_region.current.name}",
+            "awslogs-stream-prefix": "ecs"
+          }
+        },
+        "secrets": [
+        ],
+        "portMappings": [
+          {
+            "hostPort": 80,
+            "protocol": "tcp",
+            "containerPort": 80
+          }
+        ]
       }
-    ]
-  }
- ]
-EOF
+     ]
+    EOF
 }
 ```
 
@@ -342,7 +335,6 @@ codepipeline_variables = {
   "trusting_account_role"            = "arn:aws:iam::123456789012:role/my-service-name-cicd"
 }
 ```
-
 ---
 
 ## Resources
@@ -359,7 +351,7 @@ codepipeline_variables = {
 | [aws_iam_role_policy.cicd_account_codedeploy_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.this_codedeploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.codedeploy_role_additional_policies](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_s3_bucket_object.artifacts_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_object) | resource |
+| [aws_s3_object.artifacts_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
 
 ## Inputs
 

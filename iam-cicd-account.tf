@@ -17,6 +17,7 @@ resource "aws_iam_role" "cicd_account_role" {
   tags = merge(local.common_tags, {})
 }
 
+#tfsec:ignore:aws-iam-no-policy-wildcards -- Ignores errors for wildcards usage on resources
 data "aws_iam_policy_document" "cicd_account_codedeploy_access" {
   statement {
     sid    = "AllowCodeDeployGroupTriggers"
