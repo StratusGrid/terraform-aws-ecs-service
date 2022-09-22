@@ -6,7 +6,7 @@ name: terraform-aws-ecs-service
 
 content: |-
   # terraform-aws-ecs-service
-  
+
   GitHub: [ StratusGrid/terraform-aws-ecs-service](https://github.com/StratusGrid/terraform-aws-ecs-service)
 
   ecs-service is used to create an ecs service and the corresponding codedeploy, log groups, codepipeline artifacts,
