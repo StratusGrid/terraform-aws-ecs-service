@@ -5,7 +5,9 @@ formatter: markdown table
 name: terraform-aws-ecs-service
 
 content: |-
-  # ecs-service
+  # terraform-aws-ecs-service
+
+  GitHub: [ StratusGrid/terraform-aws-ecs-service](https://github.com/StratusGrid/terraform-aws-ecs-service)
 
   ecs-service is used to create an ecs service and the corresponding codedeploy, log groups, codepipeline artifacts,
   etc. It is intended to be used with StratusGrid's multi-account ecs pipeline module to allow for container images to be
@@ -17,14 +19,13 @@ content: |-
   ## Examples
   Example use of the module:
   ```hcl
-  {{ include "examples/complete.tf" }}
+  {{ include "examples/complete/example1.tfnot" }}
   ```
 
   Example Outputs which can feed CodePipeline Module:
   ```hcl
-  {{ include "examples/output_service_map.tf" }}
+  {{ include "examples/outputs/example1.tfnot" }}
   ```
-
   ---
 
   {{ .Resources }}

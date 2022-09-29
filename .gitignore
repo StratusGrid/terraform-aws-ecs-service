@@ -31,3 +31,6 @@ override.tf.json
 dist/*
 
 .idea
+
+.pre-commit-config.yaml
+.prettierignore

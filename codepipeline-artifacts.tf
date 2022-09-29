@@ -15,8 +15,8 @@ locals {
   artifact_appspec_file_name = "appspec.yaml"
 }
 
+#tflint-ignore: terraform_required_providers -- Ignore warning on version constraint
 data "archive_file" "artifacts" {
-
   type        = "zip"
   output_path = "${path.module}/dist/${var.service_name}-artifacts.zip"
 

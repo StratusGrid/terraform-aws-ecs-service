@@ -24,6 +24,7 @@ EOF
   )
 }
 
+#tfsec:ignore:aws-iam-no-policy-wildcards -- Ignores errors for wildcards usage on resources
 resource "aws_iam_role_policy" "this_codedeploy" {
   name = var.service_name
   role = aws_iam_role.this_codedeploy.id
