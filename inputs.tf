@@ -214,6 +214,23 @@ variable "taskdef_cpu" {
   type        = number
 }
 
+variable "taskdef_efs_volume_configurations" {
+  description = "A map of EFS volume configurations for use in the ECS task definition."
+
+  type = map(object({
+    file_system_id          = string
+    root_directory          = string
+    # transit_encryption      = string # Optional - Valid values: "ENABLED" or "DISABLED". Specifies whether to enable encryption of data in transit between the ECS task and the EFS file system.
+    transit_encryption_port = number # Optional - Specifies the port to use for encryption of data in transit between the ECS task and the EFS file system.
+    authorization_config = optional(object({
+      access_point_id = string # Optional - ID of the EFS access point to use for the volume.
+      iam = string # Optional - Valid values: "ENABLED" or "DISABLED". Whether to use IAM to authenticate access to the EFS file system.
+    }))
+  }))
+
+  default = null
+}
+
 variable "taskdef_execution_role_arn" {
   description = "Execution role for ECS to use when provisioning the tasks. Used for things like pulling ecr images, emitting logs, getting secrets to inject, etc."
   type        = string

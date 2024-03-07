@@ -33,3 +33,8 @@ output "codepipeline_variables" {
     trusting_account_role            = aws_iam_role.cicd_account_role.arn
   }
 }
+
+output "ecs_task_definition_json" {
+  description = "JSON of task definition"
+  value = local.taskdef_json
+}

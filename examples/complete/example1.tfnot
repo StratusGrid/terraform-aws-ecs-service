@@ -255,6 +255,17 @@ module "ecs_fargate_service" {
   taskdef_execution_role_arn = module.ecs_service_iam_role.iam_role_arn
   taskdef_task_role_arn      = module.ecs_service_iam_role.iam_role_arn
 
+  taskdef_efs_volume_configurations = {
+    efs1 = {
+      file_system_id     = "fs-0123456789abcdef"
+      root_directory     = "/"
+      transit_encryption = null
+      transit_encryption_port = null
+      authorization_config = null
+    }
+  }
+
+
   # This is just an initial definition, not codedeploy
   ### This is only needed because you can't put <> in the image field
   initialization_container_definitions = <<EOF

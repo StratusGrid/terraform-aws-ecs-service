@@ -8,10 +8,36 @@ resource "aws_ecs_task_definition" "this" {
   cpu                      = var.taskdef_cpu
   memory                   = var.taskdef_memory
 
+  dynamic "volume" {
+    for_each = var.taskdef_efs_volume_configurations != null ? [1] : []
+    content {
+    name      = volume.key
+
+    dynamic "efs_volume_configuration" {
+        for_each = var.taskdef_efs_volume_configurations != null ? var.taskdef_efs_volume_configurations : {}
+        content {
+          file_system_id          = efs_volume_configuration.value["file_system_id"]
+          root_directory          = efs_volume_configuration.value["root_directory"]
+          transit_encryption      = efs_volume_configuration.value["transit_encryption"]
+          transit_encryption_port = efs_volume_configuration.value["transit_encryption_port"]
+
+          dynamic "authorization_config" {
+            for_each = efs_volume_configuration.value["authorization_config"] != null ? [1] : []
+            content {
+              access_point_id = efs_volume_configuration.value["authorization_config"]["access_point_id"]
+              iam             = efs_volume_configuration.value["authorization_config"]["iam"]
+            }
+          }
+        }
+      }
+    }
+  }
+
   tags = merge(local.common_tags, {})
 
   container_definitions = var.initialization_container_definitions
 }
+
 
 resource "aws_ecs_service" "this" {
 

@@ -13,6 +13,37 @@ resource "aws_s3_object" "artifacts_s3" {
 locals {
   artifact_taskdef_file_name = "taskdef.json"
   artifact_appspec_file_name = "appspec.yaml"
+
+  # taskdef_volumes_json = var.taskdef_efs_volume_configurations != null ? jsonencode([
+  # for name, cfg in var.taskdef_efs_volume_configurations : {
+  #     "name": name,
+  #     "efsVolumeConfiguration": {
+  #       "fileSystemId": cfg.file_system_id,
+  #       "rootDirectory": cfg.root_directory,
+  #       "%{if cfg.transit_encryption != null}"transitEncryption": cfg.transit_encryption,%{ endif }"
+  #       "transitEncryptionPort": "${cfg.transit_encryption_port}",
+  #       #endif
+  #       #if cfg.authorization_config != null
+  #       "authorizationConfig": cfg.authorization_config
+  #       #endif
+  #     }
+  #   }
+  # ]) : null
+
+  taskdef_json = jsonencode({
+    "family": var.taskdef_family,
+    "cpu": var.taskdef_cpu,
+    "memory": var.taskdef_memory,
+    "executionRoleArn": var.taskdef_execution_role_arn,
+    "taskRoleArn": var.taskdef_task_role_arn,
+    "compatibilities": [
+      "EC2",
+      "FARGATE"
+    ],
+    "requiresCompatibilities": var.taskdef_requires_compatibilities,
+    "networkMode": var.taskdef_network_mode,
+    "containerDefinitions": var.codepipeline_container_definitions
+  })
 }
 
 #tflint-ignore: terraform_required_providers -- Ignore warning on version constraint
