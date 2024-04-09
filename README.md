@@ -1,4 +1,15 @@
 <!-- BEGIN_TF_DOCS -->
+<p align="center">                                                                                                                                            
+                                                                                
+  <img src="https://github.com/StratusGrid/terraform-readme-template/blob/main/header/stratusgrid-logo-smaller.jpg?raw=true" />
+  <p align="center">
+    <a href="https://stratusgrid.com/book-a-consultation">Contact Us Test</a>
+    <a href="https://stratusgrid.com/cloud-cost-optimization-dashboard">Stratusphere FinOps</a>
+    <a href="https://stratusgrid.com">StratusGrid Home</a>
+    <a href="https://stratusgrid.com/blog">Blog</a>
+  </p>
+</p>
+
 # terraform-aws-ecs-service
 
 GitHub: [ StratusGrid/terraform-aws-ecs-service](https://github.com/StratusGrid/terraform-aws-ecs-service)
@@ -422,8 +433,8 @@ codepipeline_variables = {
 - Potentially make the kms key optional to better support same account options with less inputs?
 - Have the iam-cicd-account iam resources be optional and default to not creating via count
 - Move autoscaling into the module. To add autoscaling to module, I would:
-- Move the appautoscaling target and policy into the module
-- Have two policies which it selects based off of a string or didn't do if set to false (or left blank?) on autoscaling
+  - Move the appautoscaling target and policy into the module
+  - Have two policies which it selects based off of a string or didn't do if set to false (or left blank?) on autoscaling
 - Put the initialization container definition into the module by making it an optional variable which has a local with the config so it matches ports and then coalesces the value
 - Add in other codedeploy strategies?
 

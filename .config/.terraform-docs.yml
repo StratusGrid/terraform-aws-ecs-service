@@ -1,3 +1,5 @@
+header-from: ./.config/header.md
+
 version: ""
 
 formatter: markdown table
@@ -5,6 +7,8 @@ formatter: markdown table
 name: terraform-aws-ecs-service
 
 content: |-
+  {{ .Header }}
+
   # terraform-aws-ecs-service
 
   GitHub: [ StratusGrid/terraform-aws-ecs-service](https://github.com/StratusGrid/terraform-aws-ecs-service)
@@ -54,6 +58,7 @@ content: |-
 
 sections:
   show:
+    - header
     - resources
     - inputs
     - outputs
